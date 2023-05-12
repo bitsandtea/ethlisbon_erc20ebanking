@@ -1,0 +1,23 @@
+{
+  "name": "ethlisbon_erc20ebanking",
+  "version": "1.0.0",
+  "description": "entry for ethereum hackathon in lisbon ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitsandtea/ethlisbon_erc20ebanking.git"
+  },
+  "keywords": [
+    "web3",
+    "ethereum"
+  ],
+  "author": "bitsandtea",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bitsandtea/ethlisbon_erc20ebanking/issues"
+  },
+  "homepage": "https://github.com/bitsandtea/ethlisbon_erc20ebanking#readme"
+}
