@@ -8,14 +8,20 @@ contract RoleBasedContract is AccessControl {
     uint public dailyLimit;
     uint public weeklyLimit;
     uint public monthlyLimit;
+    uint public transferTXCooldown; //time between transactions in seconds
 
     mapping(address => uint) public dailyLimits;
     mapping(address => uint) public weeklyLimits;
     mapping(address => uint) public monthlyLimits;
 
+    mapping(address => uint) public lastTransaction;
+
+
     event DailyLimitSet(address indexed token, uint amount);
     event WeeklyLimitSet(address indexed token, uint amount);
     event MonthlyLimitSet(address indexed token, uint amount);
+    event TransactionCooldownSet(uint cooldown);
+
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -36,6 +42,12 @@ contract RoleBasedContract is AccessControl {
         monthlyLimits[_token] = _amount;
         emit MonthlyLimitSet(_token, _amount);
     }
+
+    function setTransactionCooldown(uint _cooldown) public onlyRole(ADMIN_ROLE) {
+        transferTXCooldown = _cooldown;
+        emit TransactionCooldownSet(_cooldown);
+    }
+
 
 
     function addSpender(address _spender) public onlyRole(ADMIN_ROLE) {
