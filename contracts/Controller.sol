@@ -9,29 +9,34 @@ contract RoleBasedContract is AccessControl {
     uint public weeklyLimit;
     uint public monthlyLimit;
 
-    event DailyLimitSet(uint amount);
-    event WeeklyLimitSet(uint amount);
-    event MonthlyLimitSet(uint amount);
+    mapping(address => uint) public dailyLimits;
+    mapping(address => uint) public weeklyLimits;
+    mapping(address => uint) public monthlyLimits;
+
+    event DailyLimitSet(address indexed token, uint amount);
+    event WeeklyLimitSet(address indexed token, uint amount);
+    event MonthlyLimitSet(address indexed token, uint amount);
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setRoleAdmin(SPENDER_ROLE, ADMIN_ROLE);
     }
 
-    function setDailyLimit(uint _amount) public onlyRole(ADMIN_ROLE) {
-        dailyLimit = _amount;
-        emit DailyLimitSet(_amount);
+    function setDailyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
+        dailyLimits[_token] = _amount;
+        emit DailyLimitSet(_token, _amount);
     }
 
-    function setWeeklyLimit(uint _amount) public onlyRole(ADMIN_ROLE) {
-        weeklyLimit = _amount;
-        emit WeeklyLimitSet(_amount);
+    function setWeeklyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
+        weeklyLimits[_token] = _amount;
+        emit WeeklyLimitSet(_token, _amount);
     }
 
-    function setMonthlyLimit(uint _amount) public onlyRole(ADMIN_ROLE) {
-        monthlyLimit = _amount;
-        emit MonthlyLimitSet(_amount);
+    function setMonthlyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
+        monthlyLimits[_token] = _amount;
+        emit MonthlyLimitSet(_token, _amount);
     }
+
 
     function addSpender(address _spender) public onlyRole(ADMIN_ROLE) {
         grantRole(SPENDER_ROLE, _spender);
