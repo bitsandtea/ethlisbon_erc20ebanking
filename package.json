@@ -23,10 +23,12 @@
   "homepage": "https://github.com/bitsandtea/ethlisbon_erc20ebanking#readme",
   "dependencies": {
     "@account-abstraction/contracts": "^0.6.0",
+    "@account-abstraction/sdk": "^0.6.0",
     "@chainlink/contracts": "^0.6.1",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.8.3",
     "dotenv": "^16.0.3",
+    "ethereumjs-util": "^7.1.5",
     "hardhat": "^2.14.0",
     "userop": "^0.2.0"
   },

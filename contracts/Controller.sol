@@ -1,61 +1,71 @@
-//SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
+
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-//import console log
 import "./AddressReputation.sol";
 
 contract Controller is AccessControl {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
     bytes32 public constant SPENDER_ROLE = keccak256("SPENDER");
-    uint public dailyLimit;
-    uint public weeklyLimit;
-    uint public monthlyLimit;
-    uint public transferTXCooldown; //time between transactions in seconds
+
+    uint public transferTXCooldown; // time between transactions in seconds
     uint public minReputation;
     AddressReputation public reputationContract;
 
-    // mapping(address => uint) public dailyLimits;
-    // mapping(address => uint) public weeklyLimits;
-    // mapping(address => uint) public monthlyLimits;
+    mapping(address => mapping(address => uint)) public dailyLimits;
+    mapping(address => mapping(address => uint)) public weeklyLimits;
+    mapping(address => mapping(address => uint)) public monthlyLimits;
 
-    uint lastTransaction;
+    mapping(address => uint) public lastTransaction;
 
-    event DailyLimitSet(address indexed token, uint amount);
-    event WeeklyLimitSet(address indexed token, uint amount);
-    event MonthlyLimitSet(address indexed token, uint amount);
+    event DailyLimitSet(address indexed user, address indexed token, uint amount);
+    event WeeklyLimitSet(address indexed user, address indexed token, uint amount);
+    event MonthlyLimitSet(address indexed user, address indexed token, uint amount);
     event TransactionCooldownSet(uint cooldown);
 
-
-    constructor(address _reputationContractAddress, uint _minReputation, uint _transferTXCooldown, uint _dailyLimit, uint _weeklyLimit, uint _monthlyLimit) {
+    constructor(
+        address _reputationContractAddress,
+        uint _minReputation,
+        uint _transferTXCooldown
+    ) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ADMIN_ROLE, msg.sender);
         _setRoleAdmin(SPENDER_ROLE, ADMIN_ROLE);
         reputationContract = AddressReputation(_reputationContractAddress);
         minReputation = _minReputation;
         transferTXCooldown = _transferTXCooldown;
-        dailyLimit = _dailyLimit;
-        weeklyLimit = _weeklyLimit;
-        monthlyLimit = _monthlyLimit;
     }
 
     function setMinReputation(uint _reputation) public onlyRole(ADMIN_ROLE) {
         minReputation = _reputation;
     }
 
-    function setDailyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        dailyLimit = _amount;
-        emit DailyLimitSet(_token, _amount);
+    function setDailyLimit(
+        address _user,
+        address _token,
+        uint _amount
+    ) public onlyRole(ADMIN_ROLE) {
+        dailyLimits[_user][_token] = _amount;
+        emit DailyLimitSet(_user, _token, _amount);
     }
 
-    function setWeeklyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        weeklyLimit = _amount;
-        emit WeeklyLimitSet(_token, _amount);
+    function setWeeklyLimit(
+        address _user,
+        address _token,
+        uint _amount
+    ) public onlyRole(ADMIN_ROLE) {
+        weeklyLimits[_user][_token] = _amount;
+        emit WeeklyLimitSet(_user, _token, _amount);
     }
 
-    function setMonthlyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        monthlyLimit = _amount;
-        emit MonthlyLimitSet(_token, _amount);
+    function setMonthlyLimit(
+        address _user,
+        address _token,
+        uint _amount
+    ) public onlyRole(ADMIN_ROLE) {
+        monthlyLimits[_user][_token] = _amount;
+        emit MonthlyLimitSet(_user, _token, _amount);
     }
 
     function setTransactionCooldown(uint _cooldown) public onlyRole(ADMIN_ROLE) {
@@ -71,17 +81,18 @@ contract Controller is AccessControl {
         revokeRole(SPENDER_ROLE, _spender);
     }
 
-    function checkLimit(uint _amount) internal view {
-        require(_amount <= dailyLimit, "Amount exceeds the daily limit");
-        require(_amount <= weeklyLimit, "Amount exceeds the weekly limit");
-        require(_amount <= monthlyLimit, "Amount exceeds the monthly limit");
-        // require(_amount <= dailyLimits[_token], "Amount exceeds the daily limit");
-        // require(_amount <= weeklyLimits[_token], "Amount exceeds the weekly limit");
-        // require(_amount <= monthlyLimits[_token], "Amount exceeds the monthly limit");
+    function checkLimit(
+        address _user,
+        address _token,
+        uint _amount
+    ) internal view {
+        require(_amount <= dailyLimits[_user][_token], "Amount exceeds the daily limit");
+        require(_amount <= weeklyLimits[_user][_token], "Amount exceeds the weekly limit");
+        require(_amount <= monthlyLimits[_user][_token], "Amount exceeds the monthly limit");
     }
 
     function checkCooldown() internal view {
-        require(block.timestamp >= lastTransaction + transferTXCooldown, "Transaction cooldown in progress");
+        require(block.timestamp >= lastTransaction[msg.sender] + transferTXCooldown, "Transaction cooldown in progress");
     }
 
     function validateReputation(address _addr) internal view {
@@ -89,23 +100,16 @@ contract Controller is AccessControl {
         require(reputationContract.getReputation(_addr) >= minReputation, "Insufficient reputation");
     }
 
-    function validate(bytes calldata _data) public view returns (bool) {
+    function validate(
+        address _user,
+        bytes calldata _data
+    ) public view returns (bool) {
         (address token, address to, uint amount) = abi.decode(_data, (address, address, uint));
 
-        checkLimit(amount);
+        checkLimit(_user, token, amount);
         checkCooldown();
         validateReputation(token);
-        validateReputation((to));
+        validateReputation(to);
         return true;
-
-
-        // IERC20 tokenContract = IERC20(token);
-
-        // // Perform the ERC20 token transfer
-        // tokenContract.transfer(to, amount);
-
-        // // Update last transaction timestamp
-        // lastTransaction = block.timestamp;
     }
-
 }
