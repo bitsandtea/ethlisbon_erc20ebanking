@@ -1,0 +1,12 @@
+{
+  "rpcUrl": "https://goerli.infura.io/v3/ed7ba3ae7a984efebfb8ea50b0f9582f",
+  "signingKey": "0xf86a710f12a5d8ea8bd41577c5e9b9cb32596ee7aed396c2dafa8bd5b7eb4460",
+  "entryPoint": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  "simpleAccountFactory": "0x9406Cc6185a346906296840746125a0E44976454",
+  "paymaster": {
+    "rpcUrl": "https://goerli.infura.io/v3/ed7ba3ae7a984efebfb8ea50b0f9582f",
+    "context": {
+      "type": "payg"
+    }
+  }
+}

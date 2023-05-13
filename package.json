@@ -4,7 +4,8 @@
   "description": "entry for ethereum hackathon in lisbon ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "ts-node scripts/init.ts"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,12 @@
   "homepage": "https://github.com/bitsandtea/ethlisbon_erc20ebanking#readme",
   "dependencies": {
     "@account-abstraction/contracts": "^0.6.0",
+    "@chainlink/contracts": "^0.6.1",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.8.3",
-    "hardhat": "^2.14.0"
+    "dotenv": "^16.0.3",
+    "hardhat": "^2.14.0",
+    "userop": "^0.2.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
@@ -40,6 +44,7 @@
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "zksync-web3": "^0.14.3"
   }
 }
