@@ -10,6 +10,7 @@ contract AddressReputation is AccessControl {
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(ADMIN_ROLE, msg.sender);
     }
 
     function setReputation(address _address, uint _reputation) public onlyRole(ADMIN_ROLE) {

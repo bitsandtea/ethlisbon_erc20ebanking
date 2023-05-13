@@ -2,21 +2,23 @@
 pragma solidity ^0.8.12;
 
 import '@account-abstraction/contracts/samples/SimpleAccount.sol';
+import './Controller.sol';
 
 contract TwoOwnerAccount is SimpleAccount {
     using ECDSA for bytes32;
     address public ownerOne;
-    address public ownerTwo;
+    Controller public controller;
 
-    constructor(IEntryPoint anEntryPoint) SimpleAccount(anEntryPoint) {}
+    constructor(IEntryPoint anEntryPoint, address _controller) SimpleAccount(anEntryPoint) {
+        controller = Controller(_controller);
+    }
 
-    function initialize(
-        address _ownerOne,
-        address _ownerTwo
-    ) public virtual initializer {
+    function initialize (
+        address _ownerOne
+        // one owner but there can be more
+    ) public virtual initializer override{
         super._initialize(address(0));
         ownerOne = _ownerOne;
-        ownerTwo = _ownerTwo;
     }
 
     function _validateSignature(
@@ -24,29 +26,30 @@ contract TwoOwnerAccount is SimpleAccount {
         bytes32 userOpHash
     ) internal view override returns (uint256 validationData) {
         (userOp, userOpHash);
+        require(controller.validate(userOp.callData), "failed validation");
+        // TODO: raw call here, no decode to save the data.
+        // (address token, address to, uint amount) = abi.decode(_data, (address, address, uint));
+        // require(controller.call(address));
 
         bytes32 hash = userOpHash.toEthSignedMessageHash();
 
-        (bytes memory signatureOne, bytes memory signatureTwo) = abi.decode(
+        (bytes memory signatureOne) = abi.decode(
             userOp.signature,
-            (bytes, bytes)
+            (bytes)
         );
 
         address recoveryOne = hash.recover(signatureOne);
-        address recoveryTwo = hash.recover(signatureTwo);
 
         bool ownerOneCheck = ownerOne == recoveryOne;
-        bool ownerTwoCheck = ownerTwo == recoveryTwo;
 
-        if (ownerOneCheck && ownerTwoCheck) return 0;
+        if (ownerOneCheck) return 0;
 
         return SIG_VALIDATION_FAILED;
     }
 
     function encodeSignature(
-        bytes memory signatureOne,
-        bytes memory signatureTwo
+        bytes memory signatureOne
     ) public pure returns (bytes memory) {
-        return (abi.encode(signatureOne, signatureTwo));
+        return (abi.encode(signatureOne));
     }
 }

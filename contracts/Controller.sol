@@ -1,8 +1,8 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+//import console log
 import "./AddressReputation.sol";
 
 contract Controller is AccessControl {
@@ -15,9 +15,9 @@ contract Controller is AccessControl {
     uint public minReputation;
     AddressReputation public reputationContract;
 
-    mapping(address => uint) public dailyLimits;
-    mapping(address => uint) public weeklyLimits;
-    mapping(address => uint) public monthlyLimits;
+    // mapping(address => uint) public dailyLimits;
+    // mapping(address => uint) public weeklyLimits;
+    // mapping(address => uint) public monthlyLimits;
 
     uint lastTransaction;
 
@@ -27,10 +27,16 @@ contract Controller is AccessControl {
     event TransactionCooldownSet(uint cooldown);
 
 
-    constructor(address _reputationContractAddress) {
+    constructor(address _reputationContractAddress, uint _minReputation, uint _transferTXCooldown, uint _dailyLimit, uint _weeklyLimit, uint _monthlyLimit) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(ADMIN_ROLE, msg.sender);
         _setRoleAdmin(SPENDER_ROLE, ADMIN_ROLE);
         reputationContract = AddressReputation(_reputationContractAddress);
+        minReputation = _minReputation;
+        transferTXCooldown = _transferTXCooldown;
+        dailyLimit = _dailyLimit;
+        weeklyLimit = _weeklyLimit;
+        monthlyLimit = _monthlyLimit;
     }
 
     function setMinReputation(uint _reputation) public onlyRole(ADMIN_ROLE) {
@@ -38,17 +44,17 @@ contract Controller is AccessControl {
     }
 
     function setDailyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        dailyLimits[_token] = _amount;
+        dailyLimit = _amount;
         emit DailyLimitSet(_token, _amount);
     }
 
     function setWeeklyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        weeklyLimits[_token] = _amount;
+        weeklyLimit = _amount;
         emit WeeklyLimitSet(_token, _amount);
     }
 
     function setMonthlyLimit(address _token, uint _amount) public onlyRole(ADMIN_ROLE) {
-        monthlyLimits[_token] = _amount;
+        monthlyLimit = _amount;
         emit MonthlyLimitSet(_token, _amount);
     }
 
@@ -65,26 +71,13 @@ contract Controller is AccessControl {
         revokeRole(SPENDER_ROLE, _spender);
     }
 
-    function addBlacklist(address _blacklist) public onlyRole(ADMIN_ROLE) {
-        grantRole(DEFAULT_ADMIN_ROLE, _blacklist);
-    }
-
-    function removeBlacklist(address _blacklist) public onlyRole(ADMIN_ROLE) {
-        revokeRole(DEFAULT_ADMIN_ROLE, _blacklist);
-    }
-
-    function addWhitelist(address _whitelist) public onlyRole(ADMIN_ROLE) {
-        grantRole(DEFAULT_ADMIN_ROLE, _whitelist);
-    }
-
-    function removeWhitelist(address _whitelist) public onlyRole(ADMIN_ROLE) {
-        revokeRole(DEFAULT_ADMIN_ROLE, _whitelist);
-    }
-
-    function checkLimit(address _token, uint _amount) internal view {
-        require(_amount <= dailyLimits[_token], "Amount exceeds the daily limit");
-        require(_amount <= weeklyLimits[_token], "Amount exceeds the weekly limit");
-        require(_amount <= monthlyLimits[_token], "Amount exceeds the monthly limit");
+    function checkLimit(uint _amount) internal view {
+        require(_amount <= dailyLimit, "Amount exceeds the daily limit");
+        require(_amount <= weeklyLimit, "Amount exceeds the weekly limit");
+        require(_amount <= monthlyLimit, "Amount exceeds the monthly limit");
+        // require(_amount <= dailyLimits[_token], "Amount exceeds the daily limit");
+        // require(_amount <= weeklyLimits[_token], "Amount exceeds the weekly limit");
+        // require(_amount <= monthlyLimits[_token], "Amount exceeds the monthly limit");
     }
 
     function checkCooldown() internal view {
@@ -96,21 +89,23 @@ contract Controller is AccessControl {
         require(reputationContract.getReputation(_addr) >= minReputation, "Insufficient reputation");
     }
 
-    function execute(bytes calldata _data) public {
+    function validate(bytes calldata _data) public view returns (bool) {
         (address token, address to, uint amount) = abi.decode(_data, (address, address, uint));
 
-        checkLimit(token, amount);
+        checkLimit(amount);
         checkCooldown();
+        validateReputation(token);
+        validateReputation((to));
+        return true;
 
-        IERC20 tokenContract = IERC20(token);
-        require(tokenContract.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
-        require(tokenContract.balanceOf(address(this)) >= amount, "Insufficient contract balance");
 
-        // Perform the ERC20 token transfer
-        tokenContract.transfer(to, amount);
+        // IERC20 tokenContract = IERC20(token);
 
-        // Update last transaction timestamp
-        lastTransaction = block.timestamp;
+        // // Perform the ERC20 token transfer
+        // tokenContract.transfer(to, amount);
+
+        // // Update last transaction timestamp
+        // lastTransaction = block.timestamp;
     }
 
 }
