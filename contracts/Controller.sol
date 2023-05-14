@@ -73,6 +73,27 @@ contract Controller is AccessControl {
         emit TransactionCooldownSet(_cooldown);
     }
 
+    function setReputationContract(address _reputationContractAddress) public onlyRole(ADMIN_ROLE) {
+        reputationContract = AddressReputation(_reputationContractAddress);
+    }
+
+    //set them in bulk
+
+    function setBulk(
+        address _token,
+        uint _dailyLimit,
+        uint _weeklyLimit,
+        uint _monthlyLimit,
+        uint _setMinReputation,
+        uint _transferTXCooldown
+    ) public onlyRole(ADMIN_ROLE) {
+        setDailyLimit(msg.sender, _token, _dailyLimit);
+        setWeeklyLimit(msg.sender, _token, _weeklyLimit);
+        setMonthlyLimit(msg.sender, _token, _monthlyLimit);
+        setMinReputation(_setMinReputation);
+        setTransactionCooldown(_transferTXCooldown);
+    }
+
     function addSpender(address _spender) public onlyRole(ADMIN_ROLE) {
         grantRole(SPENDER_ROLE, _spender);
     }
@@ -81,6 +102,15 @@ contract Controller is AccessControl {
         revokeRole(SPENDER_ROLE, _spender);
     }
 
+    function getUserTokenSettings(address _user, address _token) public view returns (uint, uint, uint, uint, uint) {
+        return (
+            dailyLimits[_user][_token],
+            weeklyLimits[_user][_token],
+            monthlyLimits[_user][_token],
+            minReputation,
+            transferTXCooldown
+        );
+    }
     function checkLimit(
         address _user,
         address _token,

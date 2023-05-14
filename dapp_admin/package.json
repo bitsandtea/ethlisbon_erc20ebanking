@@ -1,0 +1,81 @@
+{
+  "name": "art-staking-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "echo \"VUE_APP_COMMIT_REF=$COMMIT_REF\" > .env.local && vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@walletconnect/web3-provider": "^1.6.6",
+    "bootstrap-vue": "^2.21.2",
+    "core-js": "^3.19.1",
+    "ethers": "^5.6.6",
+    "js-sha3": "^0.8.0",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.2.31",
+    "vue": "^2.6.14",
+    "vue-papa-parse": "^3.0.4",
+    "web3": "^1.6.0",
+    "web3-core": "^1.6.0",
+    "web3-eth-contract": "^1.6.0",
+    "web3modal": "^1.9.4"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "@vue/cli-plugin-babel": "~4.5.15",
+    "@vue/cli-plugin-eslint": "~4.5.15",
+    "@vue/cli-plugin-typescript": "~4.5.15",
+    "@vue/cli-service": "~4.5.15",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@vue/eslint-config-typescript": "^7.0.0",
+    "bootstrap": "^4.6.1",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^6.2.2",
+    "lint-staged": "^9.5.0",
+    "mutationobserver-shim": "^0.3.7",
+    "popper.js": "^1.16.1",
+    "portal-vue": "^2.1.7",
+    "prettier": "^2.2.1",
+    "sass": "^1.26.11",
+    "sass-loader": "^10.0.2",
+    "typescript": "~4.4.4",
+    "vue-cli-plugin-bootstrap-vue": "~0.7.0",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/typescript/recommended",
+      "@vue/prettier",
+      "@vue/prettier/@typescript-eslint"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  }
+}

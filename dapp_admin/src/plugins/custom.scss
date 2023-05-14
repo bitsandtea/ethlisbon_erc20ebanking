@@ -1,0 +1,69 @@
+$primary: #4f33ff;
+$gray-800: #383539;
+$green: #c9ffd1;
+$border-radius: 20px;
+$input-btn-border-width: 2px;
+$body-bg: #eaf4ff;
+$body-color: $primary;
+$font-family-sans-serif: "AvenirNext", sans-serif;
+$navbar-dark-color: white;
+$headings-margin-bottom: 1.5rem;
+$box-shadow-lg: 0 0 50px rgba(79, 51, 255, .25);
+$input-btn-padding-y: .6rem;
+$input-btn-padding-x: 2.2rem;
+$input-btn-padding-y-sm: .4rem;
+$input-btn-padding-x-sm: 1.2rem;
+$link-decoration: underline;
+$link-hover-decoration: none;
+
+@import "~bootstrap/scss/bootstrap.scss";
+@import "~bootstrap-vue/src/index.scss";
+
+#app {
+  background: linear-gradient(0deg,#dcddff .34%,#f9f9ff);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app > footer {
+  height: 40px;
+  line-height: 40px;
+  background-color: black;
+  color: white;
+
+  @include media-breakpoint-down(xs) {
+    height: 80px;
+  }
+
+  a {
+    color: $navbar-dark-active-color;
+
+    @include hover-focus() {
+      color: $navbar-dark-hover-color;
+      text-decoration: none;
+    }
+  }
+}
+
+.nav-link {
+  text-decoration: underline;
+}
+
+#nav-collapse li {
+  @include media-breakpoint-down(md) {
+    padding: 8px;
+    margin: 0 !important;
+  }
+}
+
+.btn {
+  letter-spacing: .15em;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background-color .3s,color .3s;
+}
+
+.btn-sm {
+  @include font-size($small-font-size, true);
+}
+
+@import "../assets/fonts.css";

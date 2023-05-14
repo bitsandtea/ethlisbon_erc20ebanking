@@ -6,9 +6,9 @@ const config: HardhatUserConfig = {
   solidity: "0.8.17",
   networks: {
     hardhat: {
-      forking: {
-        url: "https://goerli.infura.io/v3/" + process.env.infura_eth_key,
-      },
+      // forking: {
+      //   url: "https://goerli.infura.io/v3/" + process.env.infura_eth_key,
+      // },
     },
     forkedgoerli:{
       url: "http://127.0.0.1:8545/",
